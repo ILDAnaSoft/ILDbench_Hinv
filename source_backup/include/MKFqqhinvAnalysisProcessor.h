@@ -1,11 +1,18 @@
-#ifndef RootFileProcessor_h
-#define RootFileProcessor_h 1
+#ifndef MKFqqhinvAnalysisProcessor_h
+#define MKFqqhinvAnalysisProcessor_h 1
 
 #include "marlin/Processor.h"
 #include "lcio.h"
+#include <EVENT/LCCollection.h>
+#include <EVENT/ReconstructedParticle.h>
 #include <string>
+#include "TFile.h"
+#include "TH1D.h"
+#include "TString.h"
+#include "TLorentzVector.h"
+//#include <iostream>
+#include <sstream>
 
-namespace mylib{
 
 /**  Example processor for marlin.
  * 
@@ -21,17 +28,16 @@ namespace mylib{
  * @param CollectionName Name of the MCParticle collection
  * 
  * @author F. Gaede, DESY
- * @version $Id: RootFileProcessor.h,v 1.4 2005-10-11 12:57:39 gaede Exp $ 
+ * @version $Id: MKFqqhinvAnalysisProcessor.h,v 1.4 2005-10-11 12:57:39 gaede Exp $ 
  */
 
-class RootFileProcessor : public marlin::Processor {
+class MKFqqhinvAnalysisProcessor : public marlin::Processor {
   
  public:
   
-  virtual Processor*  newProcessor() { return new RootFileProcessor ; }
+  virtual Processor*  newProcessor() { return new MKFqqhinvAnalysisProcessor ; }  
   
-  
-  RootFileProcessor() ;
+  MKFqqhinvAnalysisProcessor() ;
   
   /** Called at the begin of the job before anything is read.
    * Use to initialize the processor, e.g. book histograms.
@@ -53,19 +59,31 @@ class RootFileProcessor : public marlin::Processor {
   /** Called after data processing for clean up.
    */
   virtual void end() ;
-  
-  
+
+  Double_t getCosHel(TLorentzVector particle, TLorentzVector parent,
+		     TLorentzVector grandparent);
+
  protected:
 
-  /** output root file name.
+  /** Input collection name.
    */
-  std::string _outRootFile;
-
+  std::string _colMCP ;
+  std::string _colPFOs ;
+  std::string _colLeptons ;
+  std::string _colJets;
+  std::string _colMKFJets;
+  //std::string _outRootFile;
+  
   int _nRun ;
   int _nEvt ;
+
+  float _ecm ;
+
+  //TFile *output;
+  TH1D *hStatAnl;
+  std::stringstream gCutName[20];
 } ;
 
-}
 #endif
 
 

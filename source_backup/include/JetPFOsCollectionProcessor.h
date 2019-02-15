@@ -1,11 +1,18 @@
-#ifndef RootFileProcessor_h
-#define RootFileProcessor_h 1
+#ifndef JetPFOsCollectionProcessor_h
+#define JetPFOsCollectionProcessor_h 1
 
 #include "marlin/Processor.h"
 #include "lcio.h"
 #include <string>
+#include "TH1D.h"
+//#include <iostream>
+#include <sstream>
 
-namespace mylib{
+#include <EVENT/LCCollection.h>
+
+using namespace lcio ;
+using namespace marlin ;
+
 
 /**  Example processor for marlin.
  * 
@@ -21,17 +28,17 @@ namespace mylib{
  * @param CollectionName Name of the MCParticle collection
  * 
  * @author F. Gaede, DESY
- * @version $Id: RootFileProcessor.h,v 1.4 2005-10-11 12:57:39 gaede Exp $ 
+ * @version $Id: JetPFOsCollectionProcessor.h,v 1.4 2005-10-11 12:57:39 gaede Exp $ 
  */
 
-class RootFileProcessor : public marlin::Processor {
+class JetPFOsCollectionProcessor : public Processor {
   
  public:
   
-  virtual Processor*  newProcessor() { return new RootFileProcessor ; }
+  virtual Processor*  newProcessor() { return new JetPFOsCollectionProcessor ; }
   
   
-  RootFileProcessor() ;
+  JetPFOsCollectionProcessor() ;
   
   /** Called at the begin of the job before anything is read.
    * Use to initialize the processor, e.g. book histograms.
@@ -49,23 +56,28 @@ class RootFileProcessor : public marlin::Processor {
   
   virtual void check( LCEvent * evt ) ; 
   
-  
   /** Called after data processing for clean up.
    */
   virtual void end() ;
   
+  void addCollectionFastJetPFOs(LCEvent *evt, std::string _colFastJet, std::string _colPFOsAfterFJ );
   
  protected:
 
-  /** output root file name.
+  /** Input collection name.
    */
-  std::string _outRootFile;
+  std::string _colMCP ;
+  std::string _colMCTL ;
+  std::string _colPFOs ;
+  std::string _colPFOsWithoutOverlay ;
+  std::string _colJets ;
+  std::string _colJetPFOs ;
 
   int _nRun ;
   int _nEvt ;
+
 } ;
 
-}
 #endif
 
 
