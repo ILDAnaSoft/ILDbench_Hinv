@@ -1,6 +1,7 @@
 #######################################################
 # cmake file for building ILDbench_Hinv analysis package
 # @author Ete Remi, DESY
+cmake_minimum_required(VERSION 3.6)
 #######################################################
 
 # -------------------------------------------------
