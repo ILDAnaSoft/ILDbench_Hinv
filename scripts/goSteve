@@ -1,0 +1,154 @@
+#!/bin/bash
+
+dtmdl=l5 # l5 or s5
+cheat=cheatOZBI # full or cheat{Overlay,Zbbcc,BS,ISR,visISR,OZ,OZB,OZBI,OZBvI}
+outputdir=output/$cheat/$dtmdl
+
+mkdir -p $outputdir/sublog $outputdir/log $outputdir/rootfile $outputdir/myxml $outputdir/data_list
+
+#inputxml=bmazhqqhinv.xml
+inputxml=steer/benchmark500/bmazhqqhinv_${cheat}.xml
+
+ecm=500
+detector_tmp=${dtmdl}_o1_v02
+
+jobque=s
+#jobque=l
+
+submit() {
+
+    process=$1
+    dirin=$2
+    detector=$3
+    prefix=$4
+    nperjob=$5
+    mode=$6
+    
+    flist=$outputdir/data_list/${process}_${detector}.list
+    echo "search data in ${dirin}"
+    `find ${dirin}/ -name ${prefix}*${detector}*${process}.*.slcio | sort -n > ${flist}`
+
+    ntot=`more ${flist} | wc -l`
+    echo "total number of files in ${process}: " ${ntot}
+    echo "number of files per job: " ${nperjob}    
+
+    if [ ${ntot} -le 0 ] ; then
+	echo "WARNING: there's no data found in process ${process}! Please have a check."
+    fi
+    
+    if [ ${nperjob} -le 0 ] ; then
+	nperjob=${ntot}
+	echo "number of files per job is reset to ${ntot}"
+    fi
+
+    njobs=$[(${ntot}-1)/${nperjob}+1]
+    echo "total number of jobs for ${process}: " ${njobs}    
+
+    for (( i=1; i<=${njobs}; i++ )) ; do
+	ifirst=$[${nperjob}*($i-1)+1]
+	ilasttmp=$[${ifirst}+${nperjob}-1]
+	if [ ${ilasttmp} -le ${ntot} ] ; then
+	    ilast=${ilasttmp}
+	else
+	    ilast=${ntot}
+	fi
+	log=./$outputdir/sublog/${process}"_"`printf %03d $i`.log
+	echo "submitting job `printf %03d ${i}`: from ${ifirst} to ${ilast}"
+	bsub -q ${jobque} -J "ana_${process}_"`printf %03d $i` -o $log \
+	     "./goMarlin ${flist} ${ifirst} ${ilast} ${inputxml} ${ecm} ${detector} ${outputdir}"
+	if [ "x${mode}" == "xtest" ] ; then
+	    echo "Test Mode Activated..."
+	    break
+	fi
+    done
+}
+
+#         #process              #data dir          #prefix    #nf per job
+#submit     2f_z_l         data_dbd_${ecm}        rv           1
+
+
+##for test
+goTest() {
+    submit qqh_zz_4n data_idr_${ecm} ${detector_tmp} rv 1 test
+}
+
+###-------------------------------------
+###signal
+###-------------------------------------
+goSig() {
+    data_dir_in=data_idr_${ecm}
+    data_prefix=rv
+    n_per_job=1
+    psg="qqh_zz_4n"    
+    for p in ${psg} ; do
+        echo "Process: " $p
+        submit ${p} ${data_dir_in} ${detector_tmp} ${data_prefix} ${n_per_job}
+    done
+}
+
+###-------------------------------------
+###SM background
+###-------------------------------------
+goBkg() {
+    p2f="2f_z_l 2f_z_bhabhag 2f_z_h"
+    p4f="4f_zz_l 4f_zz_sl 4f_zz_h 4f_ww_l 4f_ww_sl 4f_ww_h 4f_zzorww_l 4f_zzorww_h 4f_sw_l 4f_sw_sl 4f_sze_l 4f_sze_sl 4f_sznu_l 4f_sznu_sl 4f_szeorsw_l"
+    p6f="6f*"
+    ph="e1e1h e2e2h e3e3h nnh qqh"
+    #    psm="$p2f $p4f $p6f"
+    #psm="$p2f $p4f $ph"
+    psm="$p2f $p4f nnh"
+    
+    #echo $pall
+
+    data_dir_in=data_idr_${ecm}
+    data_prefix=rv
+    n_per_job=3
+    echo "n_per_job: " $n_per_job
+
+    for p in ${psm} ; do
+        echo "Process: " $p
+        submit ${p} ${data_dir_in} ${detector_tmp} ${data_prefix} ${n_per_job}
+    done
+
+    psm="e1e1h e2e2h e3e3h qqh"
+    n_per_job=1
+    echo "n_per_job: " $n_per_job
+	
+    for p in ${psm} ; do
+        echo "Process: " $p
+        submit ${p} ${data_dir_in} ${detector_tmp} ${data_prefix} ${n_per_job}
+    done
+
+}
+	
+
+
+########
+#goTest
+#goSig
+#goBkg
+
+task=$1
+
+if [ "x${task}" == "xtest" ] ; then
+    echo "Going to do some test jobs..."
+    goTest
+elif [ "x${task}" == "xsig" ] ; then
+    echo "Going to do all jobs for signal..."
+    goSig
+elif [ "x${task}" == "xbkg" ] ; then
+    echo "Going to do all jobs for background..."
+    goBkg
+elif [ "x${task}" == "xall" ] ; then
+    echo "Going to do all jobs for both signal and background..."
+    goSig
+    goBkg
+elif [ "x${task}" == "xclear" ] ; then
+    echo "Going to clear up something..."
+    rm -f data_list data_output log myxml tmpxml sublog rootfile    
+else
+    echo "Please let me know what to do..."
+    echo "Supported options: ./goSteve test; ./goSteve sig; ./goSteve bkg; ./goSteve all; ./goSteve clear"
+    echo "Good Luck!"
+fi
+    

@@ -1,0 +1,35 @@
+#!/bin/bash
+##!/bin/bash -x
+#. marlin_env_v02-00-01.sh
+. marlin_env_v02-00-02.sh
+#. ~/myLCFIPlus_MARLIN_DLL.sh
+export MARLIN_DLL="../lib/libILDBench_Hinv.so:$MARLIN_DLL"
+
+list=$1
+start=$2
+end=$3
+inputxml=$4
+ecm=$5
+detector=$6
+outputdir=$7
+dtmdl=`echo ${detector} | rev | cut -c 5- | rev`
+
+for (( i=${start}; i<=${end}; i++ )) ; do
+  input=`head -$i ${list} | tail -1`
+  file=`basename ${input}`
+  name=${file%.*}
+  
+  log=$outputdir/log/${name}.log    
+
+  ${MARLIN}/bin/Marlin $inputxml \
+	 --constant.DetectorVersion=$dtmdl \
+	 --constant.Ecm=$ecm \
+	 --global.LCIOInputFiles=$input \
+	 --constant.OutputDir=$outputdir \
+	 --constant.OutputBaseName=$name \
+	 > $log 2>&1
+
+  echo "finished: marlin for file number $i"
+  
+done
+
