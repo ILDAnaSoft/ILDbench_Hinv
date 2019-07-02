@@ -10,15 +10,13 @@
   <execute>
     <!-- ========== create a root file =======================================  -->
     <processor name="RootFileProcessor"/>  
-    <!-- ========== cheat section =======================================  -->
-    <processor name="MyOverlayISRRemovalByMCProcessor"/>
     <!-- ========== lepton selection =======================================  -->
     <processor name="MyIsolatedLeptonTaggingProcessor"/>  
     <!-- ========== LCFIPlus =======================================  -->
     <processor name="JetClusteringAndFlavorTag_2Jet"/> 
-    <!--processor name="MyJetPFOsCollectionProcessor"/-->
+    <Xprocessor name="MyJetPFOsCollectionProcessor"/>
     <!-- ========== MarlinKinfit =======================================  -->
-    <!--processor name="MyZH1CFit"/-->
+    <Xprocessor name="MyZH1CFit"/>
     <!-- ========== final analysis =======================================  -->
     <processor name="MyILDBenchHinvAnalysisProcessor"/>
     <!-- ========== full and DST output =======================================  -->
@@ -41,28 +39,6 @@
     <parameter name="OutputRootFile" type="string"> 
       ${OutputDir}/rootfile/${OutputBaseName}.root
     </parameter>
-  </processor>
-
-  <processor name="MyOverlayISRRemovalByMCProcessor" type="OverlayISRRemovalByMCProcessor">
-    <!--OverlayISRRemovalByMCProcessor does whatever it does ...-->
-    <!--Index of the 1st ISR in MCParticlesSkimmed-->
-    <parameter name="IndexOfISR1" type="int">0 </parameter>
-    <!--Index of the 2nd ISR in MCParticlesSkimmed-->
-    <parameter name="IndexOfISR2" type="int">1 </parameter>
-    <!--Name of the MCParticle collection-->
-    <parameter name="InputMCParticlesCollection" type="string" lcioInType="MCParticle">MCParticlesSkimmed </parameter>
-    <!--Name of the MCTruthLink collection-->
-    <parameter name="InputMCTruthLinkCollection" type="string" lcioInType="LCRelation">RecoMCTruthLink </parameter>
-    <!--Name of the PandoraPFOs collection-->
-    <parameter name="InputPandoraPFOsCollection" type="string" lcioInType="ReconstructedParticle">PandoraPFOs </parameter>
-    <!--Name of the PFOs collection without ISR-->
-    <parameter name="OutputPFOsWithoutISRCollection" type="string" lcioOutType="ReconstructedParticle">PFOsWithoutISR </parameter>
-    <!--Name of the PFOs collection without Overlay-->
-    <parameter name="OutputPFOsWithoutOverlayCollection" type="string" lcioOutType="ReconstructedParticle">PFOsWithoutOverlay </parameter>
-    <!--Name of the PFOs collection without Overlay and ISR-->
-    <parameter name="OutputPFOsWithoutOverlayISRCollection" type="string" lcioOutType="ReconstructedParticle">PFOsWithoutOverlayISR </parameter>
-    <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
-    <!--parameter name="Verbosity" type="string">DEBUG </parameter-->
   </processor>
 
   <processor name="MyIsolatedLeptonTaggingProcessor" type="myIsolatedLeptonTaggingProcessor">
@@ -144,7 +120,7 @@
   <processor name="MyILDBenchHinvAnalysisProcessor" type="ILDBenchHinvAnalysisProcessor">
     <!--ILDBenchHinvAnalysisProcessor does whatever it does ...-->
     <!--Name of the PFOs collection with Cheat-->
-    <parameter name="InputCheatPFOsCollection" type="string" lcioInType="ReconstructedParticle">PFOsWithoutOverlay </parameter>
+    <parameter name="InputCheatPFOsCollection" type="string" lcioInType="ReconstructedParticle">PandoraPFOs </parameter>
     <!--Name of the jets collection-->
     <parameter name="InputJetsCollection" type="string" lcioInType="ReconstructedParticle">RefinedJets_2Jet </parameter>
     <!--Name of collection with the selected leptons-->
@@ -162,11 +138,11 @@
     <!--0: full simulation,  1: w/ cheat-->
     <parameter name="useCheat" type="bool">true </parameter>
     <!--0: w/ Overlay,  1: w/o Overlay-->
-    <parameter name="OverlayRemovalCheat" type="bool">true </parameter>
+    <parameter name="OverlayRemovalCheat" type="bool">false </parameter>
     <!--0: w/ Z->bb/cc,  1: w/o Z->bb/cc-->
     <parameter name="HeavyQuarksMissingEnergyCheat" type="bool">true </parameter>
     <!--0: w/ BS,  1: w/o BS-->
-    <parameter name="BeamStrahlungCheat" type="bool">true </parameter>
+    <parameter name="BeamStrahlungCheat" type="bool">false </parameter>
     <!--0: w/ ISR,  1: w/o ISR-->
     <parameter name="InitialStateRadiationCheat" type="bool">false </parameter>
     <!--Interval of 'Hello, Analysis'-->
