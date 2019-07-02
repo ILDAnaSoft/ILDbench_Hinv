@@ -1,19 +1,12 @@
 #!/bin/bash
 
+### parameters #####
 dtmdl=l5 # l5 or s5
 cheat=cheatOZBI # full or cheat{Overlay,Zbbcc,BS,ISR,visISR,OZ,OZB,OZBI,OZBvI}
-outputdir=output/$cheat/$dtmdl
-
-mkdir -p $outputdir/sublog $outputdir/log $outputdir/rootfile $outputdir/myxml $outputdir/data_list
-
-#inputxml=bmazhqqhinv.xml
-inputxml=steer/benchmark500/bmazhqqhinv_${cheat}.xml
-
-ecm=500
-detector_tmp=${dtmdl}_o1_v02
-
-jobque=s
-#jobque=l
+ecm=500 # Energy: 500 (or 250)
+inputxml=steer/benchmark500/bmazhqqhinv_${cheat}.xml 
+jobque=s # s: short, l: long
+####################
 
 submit() {
 
@@ -69,7 +62,7 @@ submit() {
 
 ##for test
 goTest() {
-    submit qqh_zz_4n data_idr_${ecm} ${detector_tmp} rv 1 test
+    submit qqh_zz_4n data_idr_${ecm} ${dtmdl}_o1_v02 rv 1 test
 }
 
 ###-------------------------------------
@@ -82,7 +75,7 @@ goSig() {
     psg="qqh_zz_4n"    
     for p in ${psg} ; do
         echo "Process: " $p
-        submit ${p} ${data_dir_in} ${detector_tmp} ${data_prefix} ${n_per_job}
+        submit ${p} ${data_dir_in} ${dtmdl}_o1_v02 ${data_prefix} ${n_per_job}
     done
 }
 
@@ -107,7 +100,7 @@ goBkg() {
 
     for p in ${psm} ; do
         echo "Process: " $p
-        submit ${p} ${data_dir_in} ${detector_tmp} ${data_prefix} ${n_per_job}
+        submit ${p} ${data_dir_in} ${dtmdl}_o1_v02 ${data_prefix} ${n_per_job}
     done
 
     psm="e1e1h e2e2h e3e3h qqh"
@@ -116,12 +109,13 @@ goBkg() {
 	
     for p in ${psm} ; do
         echo "Process: " $p
-        submit ${p} ${data_dir_in} ${detector_tmp} ${data_prefix} ${n_per_job}
+        submit ${p} ${data_dir_in} ${dtmdl}_o1_v02 ${data_prefix} ${n_per_job}
     done
 
 }
 	
-
+outputdir=output/$cheat/$dtmdl
+mkdir -p $outputdir/sublog $outputdir/log $outputdir/rootfile $outputdir/myxml $outputdir/data_list
 
 ########
 #goTest

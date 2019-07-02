@@ -18,7 +18,7 @@
     <!-- ========== MarlinKinfit =======================================  -->
     <Xprocessor name="MyZH1CFit"/>
     <!-- ========== final analysis =======================================  -->
-    <processor name="MyMKFqqhinvAnalysisProcessor"/>
+    <processor name="MyILDBenchHinvAnalysisProcessor"/>
     <!-- ========== full and DST output =======================================  -->
   </execute>
 
@@ -116,8 +116,8 @@
     <parameter name="Verbosity" options="DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT"> MESSAGE  </parameter>
   </processor>
   
-  <processor name="MyMKFqqhinvAnalysisProcessor" type="MKFqqhinvAnalysisProcessor">
-    <!--MKFqqhinvAnalysisProcessor does whatever it does ...-->
+  <processor name="MyILDBenchHinvAnalysisProcessor" type="ILDBenchHinvAnalysisProcessor">
+    <!--ILDBenchHinvAnalysisProcessor does whatever it does ...-->
     <!--Name of the PFOs collection with Cheat-->
     <parameter name="InputCheatPFOsCollection" type="string" lcioInType="ReconstructedParticle">JetPFOs </parameter>
     <!--Name of the jets collection-->
