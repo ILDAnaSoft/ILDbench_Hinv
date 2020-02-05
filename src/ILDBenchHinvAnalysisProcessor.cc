@@ -191,19 +191,6 @@ void ILDBenchHinvAnalysisProcessor::processEvent( LCEvent * evt ) {
   if ( (_nEvt%_nHello) == 0 )
     cerr << endl << "Hello, Analysis!" << " No: " << _nEvt << endl;
 
-  /*static TNtupleD *hAnl = 0;
-  if (!hAnl) {
-    stringstream tupstr;
-    tupstr << "ej1:ej2:cosj1:cosj2:ptz:cosz:mz:acop12:mrecoil" << ":"
-	   << "cosj12:evis:evischg" << ":"
-	   << "bprob1:bprob2:bmax1:bmax2" << ":"
-	   << "yminus:yplus:yminus4:yplus4" << ":"
-	   << "njet:npfo:ntrackj1:nneutralj1:ntrackj2:nneutralj2" << ":"
-	   << "mmis:cosmis:pxj1:pyj1:pzj1:pxj2:pyj2:pzj2"
-	   << ends;
-    hAnl = new TNtupleD("hAnl","",tupstr.str().data());
-    }*/
-
   // ------------------------------------------------------
   // -- New method to add TLorentzVector Branch in TTree --
   // ------------------------------------------------------
@@ -345,6 +332,7 @@ void ILDBenchHinvAnalysisProcessor::processEvent( LCEvent * evt ) {
     TLorentzVector lortz = TLorentzVector(pv,energy);
     Int_t ioverlay = mcPart->isOverlay()? 1 : 0;
     Int_t ileft = mcPart->hasLeftDetector()? 1 : 0;
+    Int_t igenstat = mcPart->getGeneratorStatus()? mcPart->getGeneratorStatus() : 0;
     if ((pdg > 0 && pdg < 10) && motherpdg == 0 && ioverlay == 0) {
       qpdg[0] = pdg;
       jmc[0]  = lortz;
@@ -364,7 +352,8 @@ void ILDBenchHinvAnalysisProcessor::processEvent( LCEvent * evt ) {
     if (i == 1) {
       lrzISRmc[1] = lortz;
     }
-    if ((TMath::Abs(pdg) == 12 || TMath::Abs(pdg) == 14 || TMath::Abs(pdg) == 16 || TMath::Abs(pdg) == 18 ) && ileft == 1 && motherpdg != 23 ) {
+    if ((TMath::Abs(pdg) == 12 || TMath::Abs(pdg) == 14 || TMath::Abs(pdg) == 16 || TMath::Abs(pdg) == 18 )
+	&& ((_colMCP == "MCParticle" && ileft == 1) || (_colMCP == "MCParticlesSkimmed")) && ioverlay == 0 && igenstat == 1 && motherpdg != 23 ) {
       lrzLeftmc += lortz;
       ELeftmc.emplace_back(lortz.E());
       nLeftmc++;

@@ -23,6 +23,7 @@ using namespace std;
 
 namespace mylib{
 
+  Double_t getJER(Double_t Energy, Double_t costheta, string detector);
   Double_t getJetEnergyWithJER(Double_t E);
   Double_t getCosHel(TLorentzVector particle, TLorentzVector parent,TLorentzVector grandparent);
   Int_t getPartonTag(MCParticle *mcPart);

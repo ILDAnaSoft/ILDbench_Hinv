@@ -28,6 +28,7 @@
 #include "FourJetZHPairing.h"
 #include "MomentumConstraint.h"
 #include "MassConstraint.h"
+#include "SoftBWMassConstraint.h"
 
 #include "TMath.h"
 #include "TLorentzVector.h"
@@ -245,6 +246,11 @@ ZH1CFit::ZH1CFit() : Processor("ZH1CFit") {
                               "assumed phi resolution for jet axis",
                               _errphi,
                               (double)0.);
+
+  registerProcessorParameter( "gammaZ" ,
+			      "natural width of Z boson",
+			      _gammaZ,
+			      (double)2.5);
 
   registerProcessorParameter( "fitter" ,
                               "0 = OPALFitter, 1 = NewFitter, 2 = NewtonFitter",
@@ -474,7 +480,11 @@ void ZH1CFit::processEvent( LCEvent * evt ) {
     ec.addToFOList  (*(photon));
   }
   
-  MassConstraint z(91.2);
+  SoftBWMassConstraint z(_gammaZ,91.2);
+  if(_gammaZ<0.1){
+    delete &z;
+    MassConstraint z(91.2);
+  }
   z.addToFOList (fitjets[0], 1);
   z.addToFOList (fitjets[1], 1);
        

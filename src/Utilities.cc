@@ -15,8 +15,86 @@
 #include <IMPL/LCCollectionVec.h>
 #include <iomanip>
 
+#include <fstream>
+#include "TSystem.h"
+
+
 namespace mylib{
 
+  Double_t getJER(Double_t Energy, Double_t costheta, string detector){
+  
+  if ( costheta < 0 || costheta > 1.0 ){
+    std::cerr << "|costheta| " << costheta << " rad. is out of range!. Please choose costheta 0 ~ 1.0" << std::endl;
+    return  1;
+  }
+  
+  if ( detector != "l5" && detector != "s5" && detector != "o1" ){
+    std::cerr << "detector parameter " << detector.c_str() << " is invalid!. Please choose l5 or s5 or o1." << std::endl;
+    return -1;
+  }
+  
+  if ( detector == "o1" ){
+    //std::cout << "Use ILD_l4_v02 table for ILD_o1_v05." << std::endl;
+    detector = "l5";
+  }
+
+  const Int_t nEnergy = 12;
+  const Int_t E[nEnergy] = {30,40,60,91,120,160,200,240,300,350,400,500};
+  
+  const char *filename=Form("%s/output/ILD_%s_o1_v02/REC/single_precise/table_single_precise_%s_o1.txt",
+			    gSystem->Getenv("JER"),detector.c_str(),detector.c_str());
+  std::ifstream ifs(filename);
+  if ( !ifs.is_open() ){
+    std::cerr << "file " << filename << " cannot open!!" << std::endl;
+    return -1;
+  }
+  
+  string str;
+  Double_t dbl;
+  Double_t res[nEnergy];
+  while (ifs>>str){
+    char* cstr = new char[str.size() + 1];
+    std::char_traits<char>::copy(cstr, str.c_str(), str.size() + 1);
+    dbl = std::strtod(cstr,NULL);
+    //std::cout << "cstr: " << cstr   << std::endl;
+    //std::cout << "dbl: " << fixed << setprecision(2) << dbl << std::endl;
+    if (dbl == 0 && str != "0.00"){
+      getline(ifs,str);
+      continue;
+    }
+    if (dbl <= costheta){
+      getline(ifs,str);
+      ifs >> str;
+      for (Int_t i=0;i<nEnergy;i++)
+	ifs >> res[i];
+    }
+    else if (dbl > costheta)
+      break;
+  }
+  ifs.close();
+
+  Int_t count = 0;
+  while (Energy >= E[count]/2 && count < 11){
+    count++;
+  }
+
+  Double_t Res = res[count-1]+(res[count]-res[count-1])*(Energy-E[count-1]/2)/(E[count]/2-E[count-1]/2);
+
+  if ( Energy < 15 )
+    Res = res[0];
+  else if ( Energy > 250 )
+    Res = res[11];
+  
+  Res = Res*Energy/100;
+  //std::cout << "costheta: " << dbl-0.1 << "<" << costheta << "<" << dbl << std::endl;
+  //std::cout << "Energy: " << E[count-1]/2 << "<" << Energy << "<" << E[count]/2 << std::endl;
+  //std::cout << "Resolution: " << res[count-1] << "<" << Res << "<" << res[count] << std::endl;
+  //std::cout << type << " Resolution: " << Res << std::endl;
+  
+  return Res;
+  }
+  
+  
   Double_t getJetEnergyWithJER(Double_t E) {
     Double_t p[4] = {42.8,-5.36,-0.000923,5.16};
     Double_t JER = p[0]/TMath::Sqrt(E)+p[1]+p[2]*E+p[3]*TMath::Power(E/100,0.3);
